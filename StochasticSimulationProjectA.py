@@ -115,7 +115,7 @@ plt.plot(x,z,'b')
 alpha=0.9
 z=[-i**(-alpha) for i in x]
 plt.plot(x,z,'b')
-
+plt.show()
 print("Program took",time.perf_counter()-a,"seconds to run")
 
 
