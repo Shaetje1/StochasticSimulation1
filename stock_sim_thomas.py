@@ -23,16 +23,26 @@ def simulate_option_price(N, R, S0, K, r, sigma, T, seed):
     return price, se
 
 N_fixed = 750  
-Rs = [5000, 20000, 100000, 200000, 500000]
+Rs = [5000, 20000, 100000, 200000, 500000, 1000000]
+for R in Rs:
+    print(R)
+    price_36, se_36 = simulate_option_price(36, R, S0, K, r, sigma, T, seed=0)
+    price_150, se_150 = simulate_option_price(150, R, S0, K, r, sigma, T, seed=0)
+    price_750, se_750 = simulate_option_price(750, R, S0, K, r, sigma, T, seed=0)
+    diff_150_36 = abs(price_150 - price_36)
+    se_diff_150_36 = np.sqrt(se_150**2 + se_36**2)
+    margin_diff_150_36 = 1.96 * se_diff_150_36
 
-price_150, se_150 = simulate_option_price(150, 500000, S0, K, r, sigma, T, seed=0)
-price_750, se_750 = simulate_option_price(750, 500000, S0, K, r, sigma, T, seed=0)
+    diff_750_150 = abs(price_750 - price_150)
+    se_diff_750_150 = np.sqrt(se_750**2 + se_150**2)
+    margin_diff_750_150 = 1.96 * se_diff_750_150
 
-diff = abs(price_150 - price_750)
-print(f"\n--- Checking the True Difference ---")
-print(f"Price at N=150: {price_150:.4f} (95% CI: ±{1.96*se_150:.4f})")
-print(f"Price at N=750: {price_750:.4f} (95% CI: ±{1.96*se_750:.4f})")
-print(f"Absolute Difference: {diff:.4f}")
+    if diff_150_36 > margin_diff_150_36 and diff_750_150 > margin_diff_750_150:
+        print("Result: The difference is statistically significant at the 95% level.")
+        break
+print(diff_750_150,margin_diff_750_150,diff_150_36,margin_diff_150_36)
+if diff_150_36 <= margin_diff_150_36 or diff_750_150 <= margin_diff_750_150:
+    print("Result: The difference is not statistically significant for all R's ")
 
 matrix_data = []
 
@@ -61,7 +71,7 @@ Rs_vals = [row[0] for row in matrix_data]
 ci_margins = [row[4] for row in matrix_data]
 plt.plot(Rs_vals, ci_margins, marker='o', color='blue')
 # Add red horizontal line showing the observed price difference and label it
-plt.axhline(y=diff, color='red', linestyle='-', label='Price difference')
+plt.axhline(y=diff_150_36, color='red', linestyle='-', label='Price difference')
 plt.xlabel('R (paths)')
 plt.ylabel('95% CI Margin Size')
 plt.title('Confidence Interval Margin vs R')
@@ -79,7 +89,7 @@ plt.grid(True, ls='--')
 plt.tight_layout()
 plt.show()
 
-R_final = 500000
+R_final = 1000000
 Ns_assignment = [6, 36, 150, 750]
 
 print(f"\n--- Final Results for R = {R_final} ---")
