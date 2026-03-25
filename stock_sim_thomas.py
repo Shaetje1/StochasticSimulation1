@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-
+plt.clf()
 S0 = 100
 K = 100
 r = 0.04
@@ -91,6 +91,7 @@ plt.show()
 
 R_final = 1000000
 Ns_assignment = [6, 36, 150, 750]
+Prices=[]
 
 print(f"\n--- Final Results for R = {R_final} ---")
 print(f"{'N (Steps)':<10} | {'Price':<10} | {'SE':<10} | {'95% Confidence Interval'}")
@@ -98,7 +99,29 @@ print("-" * 65)
 
 for N in Ns_assignment:
     price, se = simulate_option_price(N, R_final, S0, K, r, sigma, T, seed=0)
+    Prices.append(price)
     ci_margin = 1.96 * se
     ci_lower = price - ci_margin
     ci_upper = price + ci_margin
     print(f"{N:<10} | {price:<10.4f} | {se:<10.4f} | [{ci_lower:.4f}, {ci_upper:.4f}]")
+    
+p_inf = Prices[-1] 
+errors = [abs(p - p_inf) for p in Prices[:-1]]
+Ns_plot = Ns_assignment[:-1]
+
+plt.figure(figsize=(8, 5))
+plt.loglog(Ns_plot, errors, marker='o', linestyle='-', color='red', label='Observed Error')
+
+# Add a trendline to estimate alpha
+slope, intercept = np.polyfit(np.log(Ns_plot), np.log(errors), 1)
+plt.title(f'Convergence Analysis (Estimated $\\alpha$ ≈ {-slope:.3f})')
+plt.xlabel('log(N)')
+plt.ylabel('log(|Price_N - Price_750|)')
+plt.grid(True, which="both", ls="-", alpha=0.5)
+trendline_y = np.exp(intercept) * (np.array(Ns_plot)**slope)
+
+# Plot the straight reference line
+plt.loglog(Ns_plot, trendline_y, color='black', linestyle='--', alpha=0.5, 
+           label=f'Reference Line (slope = {slope:.3f})')
+plt.legend()
+plt.show()
