@@ -53,26 +53,31 @@ for R in Rs:
     
     print(f"{R:<10} | {dt:<10.3f} | {price:<10.4f} | {se:<10.4f} | [{ci_lower:.4f}, {ci_upper:.4f}]")
 
-#plots als we willen, is niet nodig denk ik voor dit, de tabel is al duidelijk genoeg, maar hier is de code:
-# plt.figure(figsize=(12, 4))
+# plots als we willen, is niet nodig denk ik voor dit, de tabel is al duidelijk genoeg, maar hier is de code:
+plt.figure(figsize=(12, 4))
 
-# plt.subplot(1, 2, 1)
-# plt.plot([row[0] for row in matrix_data], [row[4] for row in matrix_data], marker='o', color='blue')
-# plt.xlabel('R (paths)')
-# plt.ylabel('95% CI Margin Size')
-# plt.title('Confidence Interval Margin vs R')
-# plt.grid(True, ls='--')
+plt.subplot(1, 2, 1)
+Rs_vals = [row[0] for row in matrix_data]
+ci_margins = [row[4] for row in matrix_data]
+plt.plot(Rs_vals, ci_margins, marker='o', color='blue')
+# Add red horizontal line showing the observed price difference and label it
+plt.axhline(y=diff, color='red', linestyle='-', label='Price difference')
+plt.xlabel('R (paths)')
+plt.ylabel('95% CI Margin Size')
+plt.title('Confidence Interval Margin vs R')
+plt.grid(True, ls='--')
+plt.legend()
 
 
-# plt.subplot(1, 2, 2)
-# plt.plot([row[0] for row in matrix_data], [row[1] for row in matrix_data], marker='o', color='red')
-# plt.xlabel('R (paths)')
-# plt.ylabel('Time (s)')
-# plt.title('Runtime vs R')
-# plt.grid(True, ls='--')
+plt.subplot(1, 2, 2)
+plt.plot([row[0] for row in matrix_data], [row[1] for row in matrix_data], marker='o', color='red')
+plt.xlabel('R (paths)')
+plt.ylabel('Time (s)')
+plt.title('Runtime vs R')
+plt.grid(True, ls='--')
 
-# plt.tight_layout()
-# plt.show()
+plt.tight_layout()
+plt.show()
 
 R_final = 500000
 Ns_assignment = [6, 36, 150, 750]
